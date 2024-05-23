@@ -55,4 +55,16 @@ menu "A2DP Example Configuration"
         help
             GPIO number to use for I2S Data Driver.
 
+    config UART_DATA_TX_PIN
+        int "UART DATA TX GPIO"
+        default 18
+        help
+            GPIO number to use for transmitting UART data.
+
+    config UART_DATA_RX_PIN
+        int "UART DATA RX GPIO"
+        default 19
+        help
+            GPIO number to use for receiving UART data.
+
 endmenu

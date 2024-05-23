@@ -1,6 +1,11 @@
 #ifndef __BT_APP_UART_H__
 #define __BT_APP_UART_H__
 
+#include <stddef.h>
+
+/* log tags */
+#define BT_I2S_TAG       "BT_I2S"
+
 /**
  * @brief Install/initialize the UART driver
  * 
@@ -32,6 +37,6 @@ void bt_uart_task_stop(void);
  * @param data  bytes to send over the UART bus
  * @param len   number of bytes to send over
  */
-void bt_uart_async_send(const char *data, int len);
+size_t bt_uart_async_send(const char *data, int len);
 
 #endif
