@@ -9,12 +9,12 @@
 #define BT_I2S_TAG       "BT_I2S"
 
 /**
- * @brief  start up the I2S task
+ * @brief  Starts up the I2S task
  */
 void bt_i2s_task_start_up(void);
 
 /**
- * @brief  shut down the I2S task
+ * @brief  Shuts down the I2S task
  */
 void bt_i2s_task_shut_down(void);
 
@@ -29,14 +29,14 @@ void bt_i2s_driver_install(void);
 void bt_i2s_driver_uninstall(void);
 
 /**
- * @brief  write data to ringbuffer
+ * @brief  Queues data to write to the I2S bus asynchronously.
  *
  * @param [in] data  pointer to data stream
  * @param [in] size  data length in byte
  *
- * @return size if written ringbuffer successfully, 0 others
+ * @return Number of bytes buffered for output. Zero bytes indicate failure.
  */
-size_t bt_i2s_write_ringbuf(const uint8_t *data, size_t size);
+size_t bt_i2s_async_write(const uint8_t *data, size_t size);
 
 
 /**

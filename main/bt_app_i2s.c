@@ -73,7 +73,7 @@ static void bt_i2s_task_handler(void *arg)
     }
 }
 
-/* Dynamic function definitions */
+/* Public function definitions */
 
 void bt_i2s_driver_install(void)
 {
@@ -159,7 +159,7 @@ void bt_i2s_task_shut_down(void)
     }
 }
 
-size_t bt_i2s_write_ringbuf(const uint8_t *data, size_t size)
+size_t bt_i2s_async_write(const uint8_t *data, size_t size)
 {
     size_t item_size = 0;
     BaseType_t done = pdFALSE;

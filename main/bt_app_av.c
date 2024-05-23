@@ -459,7 +459,7 @@ void bt_app_a2d_cb(esp_a2d_cb_event_t event, esp_a2d_cb_param_t *param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
-    bt_i2s_write_ringbuf(data, len);
+    bt_i2s_async_write(data, len);
 
     /* log the number every 100 packets */
     if (++s_pkt_cnt % 100 == 0) {
