@@ -83,6 +83,11 @@ void bt_uart_task_stop()
 
 size_t bt_uart_async_send(const char *data, size_t len)
 {
+    if (uart_ring_buf_handle == NULL) {
+        ESP_LOGI(BT_UART_TAG, "Unable to queue UART data as the task has not been started.");
+        return 0;
+    }
+
     BaseType_t queued = pdFALSE;
     queued = xRingbufferSend(uart_ring_buf_handle, data, len, 100);
     if (!queued) {
