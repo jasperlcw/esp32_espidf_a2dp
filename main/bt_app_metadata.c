@@ -5,25 +5,17 @@
 void bt_metadata_rc(uint8_t attr_id, uint8_t *attr_text)
 {
     switch(attr_id) {
-    case ESP_AVRC_MD_ATTR_TITLE: {
-        ESP_LOGI(BT_METADATA_TAG, "Title: %s", attr_text);
-        break;
-    }
-    case ESP_AVRC_MD_ATTR_ARTIST: {
-        ESP_LOGI(BT_METADATA_TAG, "Artist: %s", attr_text);
-        break;
-    }
-    case ESP_AVRC_MD_ATTR_ALBUM: {
-        ESP_LOGI(BT_METADATA_TAG, "Album: %s", attr_text);
-        break;
-    }
+        /* Fall through, send data over to another device over UART to process */
+    case ESP_AVRC_MD_ATTR_TITLE: {}
+    case ESP_AVRC_MD_ATTR_ARTIST: {}
+    case ESP_AVRC_MD_ATTR_ALBUM: {}
     case ESP_AVRC_MD_ATTR_GENRE: {
-        ESP_LOGI(BT_METADATA_TAG, "Genre: %s", attr_text);
+        // Send AVRC metadata over UART to a target device
         break;
     }
     default: {
         ESP_LOGI(BT_METADATA_TAG, "Unhandled AVRC metadata: attribute id 0x%x, %s", attr_id, attr_text);
         break;
     }
-    }
+    } 
 }
