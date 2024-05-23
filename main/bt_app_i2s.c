@@ -12,8 +12,8 @@
 #include "driver/i2s_std.h"
 #endif
 
-#define RINGBUF_HIGHEST_WATER_LEVEL    (32 * 1024)
-#define RINGBUF_PREFETCH_WATER_LEVEL   (20 * 1024)
+#define RINGBUF_MAX_CAPACITY        (32 * 1024)      // 32 KB
+#define RINGBUF_PREFETCH_CAPACITY   (20 * 1024)      // 20 KB
 
 typedef enum RingBufMode_t {
     RINGBUFFER_MODE_PROCESSING,    /* ringbuffer is buffering incoming audio data, I2S is working */
@@ -136,7 +136,7 @@ void bt_i2s_task_start_up(void)
         ESP_LOGE(BT_I2S_TAG, "%s, Semaphore create failed", __func__);
         return;
     }
-    if ((s_ringbuf_i2s = xRingbufferCreate(RINGBUF_HIGHEST_WATER_LEVEL, RINGBUF_TYPE_BYTEBUF)) == NULL) {
+    if ((s_ringbuf_i2s = xRingbufferCreate(RINGBUF_MAX_CAPACITY, RINGBUF_TYPE_BYTEBUF)) == NULL) {
         ESP_LOGE(BT_I2S_TAG, "%s, ringbuffer create failed", __func__);
         return;
     }
@@ -167,7 +167,7 @@ size_t bt_i2s_async_write(const uint8_t *data, size_t size)
     if (ringbuffer_mode == RINGBUFFER_MODE_DROPPING) {
         ESP_LOGW(BT_I2S_TAG, "ringbuffer is full, drop this packet!");
         vRingbufferGetInfo(s_ringbuf_i2s, NULL, NULL, NULL, NULL, &item_size);
-        if (item_size <= RINGBUF_PREFETCH_WATER_LEVEL) {
+        if (item_size <= RINGBUF_PREFETCH_CAPACITY) {
             ESP_LOGI(BT_I2S_TAG, "ringbuffer data decreased! mode changed: RINGBUFFER_MODE_PROCESSING");
             ringbuffer_mode = RINGBUFFER_MODE_PROCESSING;
         }
@@ -183,7 +183,7 @@ size_t bt_i2s_async_write(const uint8_t *data, size_t size)
 
     if (ringbuffer_mode == RINGBUFFER_MODE_PREFETCHING) {
         vRingbufferGetInfo(s_ringbuf_i2s, NULL, NULL, NULL, NULL, &item_size);
-        if (item_size >= RINGBUF_PREFETCH_WATER_LEVEL) {
+        if (item_size >= RINGBUF_PREFETCH_CAPACITY) {
             ESP_LOGI(BT_I2S_TAG, "ringbuffer data increased! mode changed: RINGBUFFER_MODE_PROCESSING");
             ringbuffer_mode = RINGBUFFER_MODE_PROCESSING;
             if (pdFALSE == xSemaphoreGive(s_i2s_write_semaphore)) {
