@@ -195,7 +195,7 @@ size_t bt_i2s_write_ringbuf(const uint8_t *data, size_t size)
     return done ? size : 0;
 }
 
-void bt_i2s_change_codec(int sample_rate, int ch_count){
+esp_err_t bt_i2s_change_codec(int sample_rate, int ch_count){
     #ifdef CONFIG_EXAMPLE_A2DP_SINK_OUTPUT_INTERNAL_DAC
         dac_continuous_disable(tx_chan);
         dac_continuous_del_channels(tx_chan);
@@ -211,13 +211,15 @@ void bt_i2s_change_codec(int sample_rate, int ch_count){
         /* Allocate continuous channels */
         dac_continuous_new_channels(&cont_cfg, &tx_chan);
         /* Enable the continuous channels */
-        dac_continuous_enable(tx_chan);
+        esp_err_t ret = dac_continuous_enable(tx_chan);
+        return ret;
     #else
         i2s_channel_disable(tx_chan);
         i2s_std_clk_config_t clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(sample_rate);
         i2s_std_slot_config_t slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, ch_count);
         i2s_channel_reconfig_std_clock(tx_chan, &clk_cfg);
         i2s_channel_reconfig_std_slot(tx_chan, &slot_cfg);
-        i2s_channel_enable(tx_chan);
+        esp_err_t ret = i2s_channel_enable(tx_chan);
+        return ret;
     #endif
 }
