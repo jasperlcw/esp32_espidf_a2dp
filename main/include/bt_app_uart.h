@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 /* log tags */
-#define BT_I2S_TAG       "BT_I2S"
+#define BT_UART_TAG       "BT_UART"
 
 /**
  * @brief Install/initialize the UART driver
@@ -22,7 +22,7 @@ void bt_uart_driver_uninstall(void);
  * @brief Starts the task for UART
  * 
  */
-void bt_uart_task_start(void);
+esp_err_t bt_uart_task_start(void);
 
 /**
  * @brief Stops the task for UART
@@ -36,7 +36,9 @@ void bt_uart_task_stop(void);
  * 
  * @param data  bytes to send over the UART bus
  * @param len   number of bytes to send over
+ * 
+ * @return Number of bytes queued to be sent
  */
-size_t bt_uart_async_send(const char *data, int len);
+size_t bt_uart_async_send(const char *data, size_t len);
 
 #endif
