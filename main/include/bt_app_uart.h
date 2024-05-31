@@ -2,6 +2,7 @@
 #define __BT_APP_UART_H__
 
 #include <stddef.h>
+#include "esp_err.h"
 
 /* log tags */
 #define BT_UART_TAG       "BT_UART"

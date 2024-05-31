@@ -4,7 +4,7 @@
 #include "esp_avrc_api.h"
 #include "esp_log.h"
 
-unsigned char metadata_buf[512];
+char metadata_buf[512];
 
 void bt_metadata_rc(uint8_t attr_id, uint8_t *attr_text)
 {

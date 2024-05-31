@@ -47,7 +47,7 @@ void bt_uart_driver_install()
         .source_clk = UART_SCLK_DEFAULT,
     };
 
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, UART_RX_BUF_SIZE, UART_TX_BUF_SIZE, 0, NULL, NULL));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, UART_RX_BUF_SIZE, UART_TX_BUF_SIZE, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_param_config(UART_NUM_0, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(UART_NUM_0, CONFIG_UART_DATA_TX_PIN, CONFIG_UART_DATA_RX_PIN, 
                     UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
@@ -73,7 +73,7 @@ void bt_uart_task_stop()
 {
     if (uart_task_handle) {
         vTaskDelete(uart_task_handle);
-        uart_task_handle == NULL;
+        uart_task_handle = NULL;
     }
     if (uart_ring_buf_handle) {
         vRingbufferDelete(uart_ring_buf_handle);
