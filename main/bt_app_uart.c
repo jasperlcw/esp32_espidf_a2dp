@@ -6,10 +6,10 @@
 #include "esp_log.h"
 #include "driver/uart.h"
 
-#define UART_RX_BUF_SIZE 1024
-#define UART_TX_BUF_SIZE 1024
+#define UART_RX_BUF_SIZE 512
+#define UART_TX_BUF_SIZE 512
 #define UART_BAUD_RATE 115200
-#define UART_RING_BUF_SIZE (1024 * 2)
+#define UART_RING_BUF_SIZE 512
 
 /* Static variable declarations */
 
@@ -24,13 +24,14 @@ static void bt_uart_task_handler(void *arg)
     const char *to_send;
     while(1) {
         item_size = 0;
-        to_send = xRingbufferReceive(uart_ring_buf_handle, &item_size, 0);
+        to_send = xRingbufferReceive(uart_ring_buf_handle, &item_size, 2000);
         if (to_send != NULL) {
             int bytes_sent = uart_write_bytes(UART_NUM_0, to_send, item_size);
             if (!bytes_sent) {
                 ESP_LOGI(BT_UART_TAG, "Unable to send data through the UART bus.");
             }
         }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -65,7 +66,8 @@ esp_err_t bt_uart_task_start()
         ESP_LOGE(BT_UART_TAG, "Failed to create ring buffer for UART TX data.");
         return ESP_FAIL;
     }
-    xTaskCreate(bt_uart_task_handler, "BtUARTTask", 2048, NULL, configMAX_PRIORITIES - 10, &uart_task_handle);
+    ESP_LOGI(BT_UART_TAG, "Starting UART task.");
+    xTaskCreate(bt_uart_task_handler, "BtUARTTask", 2048, NULL, configMAX_PRIORITIES - 20, &uart_task_handle);
     return ESP_OK;
 }
 
@@ -89,7 +91,7 @@ size_t bt_uart_async_send(const char *data, size_t len)
     }
 
     BaseType_t queued = pdFALSE;
-    queued = xRingbufferSend(uart_ring_buf_handle, data, len, 100);
+    queued = xRingbufferSend(uart_ring_buf_handle, data, len, 0);
     if (!queued) {
         ESP_LOGI(BT_UART_TAG, "Unable to queue UART data into the circular buffer.");
         return 0;

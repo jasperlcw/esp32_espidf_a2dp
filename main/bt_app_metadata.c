@@ -37,7 +37,7 @@ void bt_metadata_rc(uint8_t attr_id, uint8_t *attr_text)
     }
 
     if (send_flag) {
-        sprintf(metadata_buf, "%x:%s", attr_id, attr_text);
+        sprintf(metadata_buf, "%x:%s\n", attr_id, attr_text);
         bt_uart_async_send(metadata_buf, strlen(metadata_buf));
     }
 }
