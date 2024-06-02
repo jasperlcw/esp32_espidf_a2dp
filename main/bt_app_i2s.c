@@ -38,7 +38,7 @@ static SemaphoreHandle_t s_i2s_write_semaphore = NULL;
 static RingBufMode_t ringbuffer_mode = RINGBUFFER_MODE_PROCESSING;
 
 /* Static function definitions */
-static void bt_i2s_task_handler(void *arg)
+static void IRAM_ATTR bt_i2s_task_handler(void *arg)
 {
     uint8_t *data = NULL;
     size_t item_size = 0;
@@ -140,7 +140,7 @@ void bt_i2s_task_start_up(void)
         ESP_LOGE(BT_I2S_TAG, "%s, ringbuffer create failed", __func__);
         return;
     }
-    xTaskCreate(bt_i2s_task_handler, "BtI2STask", 2048, NULL, configMAX_PRIORITIES - 3, &s_bt_i2s_task_handle);
+    xTaskCreate(bt_i2s_task_handler, "BtI2STask", 2048, NULL, configMAX_PRIORITIES - 1, &s_bt_i2s_task_handle);
 }
 
 void bt_i2s_task_shut_down(void)
