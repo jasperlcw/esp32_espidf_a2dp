@@ -28,7 +28,7 @@ static void bt_uart_task_handler(void *arg)
         if (to_send != NULL) {
             int bytes_sent = uart_write_bytes(UART_NUM_0, to_send, item_size);
             if (!bytes_sent) {
-                ESP_LOGI(BT_UART_TAG, "Unable to send data through the UART bus.");
+                ESP_LOGW(BT_UART_TAG, "Unable to send data through the UART bus.");
             }
             vRingbufferReturnItem(uart_ring_buf_handle, to_send);
         }
@@ -94,7 +94,7 @@ size_t bt_uart_async_send(const char *data, size_t len)
     BaseType_t queued = pdFALSE;
     queued = xRingbufferSend(uart_ring_buf_handle, data, len, 0);
     if (!queued) {
-        ESP_LOGI(BT_UART_TAG, "Unable to queue UART data into the circular buffer.");
+        ESP_LOGW(BT_UART_TAG, "Unable to queue UART data into the circular buffer.");
         return 0;
     }
     return len;
