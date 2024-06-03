@@ -21,7 +21,7 @@ static RingbufHandle_t uart_ring_buf_handle = NULL;
 static void bt_uart_task_handler(void *arg)
 {
     size_t item_size = 0;
-    const char *to_send;
+    char *to_send;
     while(1) {
         item_size = 0;
         to_send = xRingbufferReceive(uart_ring_buf_handle, &item_size, 2000);
@@ -30,6 +30,7 @@ static void bt_uart_task_handler(void *arg)
             if (!bytes_sent) {
                 ESP_LOGI(BT_UART_TAG, "Unable to send data through the UART bus.");
             }
+            vRingbufferReturnItem(uart_ring_buf_handle, to_send);
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
