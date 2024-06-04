@@ -2,6 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/ringbuf.h"
+#include "freertos/semphr.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "driver/uart.h"
@@ -23,16 +24,21 @@ static void bt_uart_task_handler(void *arg)
     size_t item_size = 0;
     char *to_send;
     while(1) {
-        item_size = 0;
-        to_send = xRingbufferReceive(uart_ring_buf_handle, &item_size, 2000);
-        if (to_send != NULL) {
-            int bytes_sent = uart_write_bytes(UART_NUM_0, to_send, item_size);
-            if (!bytes_sent) {
-                ESP_LOGW(BT_UART_TAG, "Unable to send data through the UART bus.");
-            }
-            vRingbufferReturnItem(uart_ring_buf_handle, to_send);
+        xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+        {
+            do {
+                item_size = 0;
+                to_send = xRingbufferReceive(uart_ring_buf_handle, &item_size, 1000);
+                if (to_send != NULL) {
+                    int bytes_sent = uart_write_bytes(UART_NUM_0, to_send, item_size);
+                    if (!bytes_sent) {
+                        ESP_LOGW(BT_UART_TAG, "Unable to send data through the UART bus.");
+                    }
+                    vRingbufferReturnItem(uart_ring_buf_handle, to_send);
+                }
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+            } while (to_send != NULL);
         }
-        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -87,15 +93,24 @@ void bt_uart_task_stop()
 size_t bt_uart_async_send(const char *data, size_t len)
 {
     if (uart_ring_buf_handle == NULL) {
-        ESP_LOGI(BT_UART_TAG, "Unable to queue UART data as the task has not been started.");
+        ESP_LOGW(BT_UART_TAG, "Unable to queue UART data as the task has not been started.");
         return 0;
     }
 
+    size_t ringbuf_size_before_push = 0;
     BaseType_t queued = pdFALSE;
-    queued = xRingbufferSend(uart_ring_buf_handle, data, len, 0);
-    if (!queued) {
-        ESP_LOGW(BT_UART_TAG, "Unable to queue UART data into the circular buffer.");
-        return 0;
+    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+    taskENTER_CRITICAL(&myMutex);
+    {
+        vRingbufferGetInfo(uart_ring_buf_handle, NULL, NULL, NULL, NULL, &ringbuf_size_before_push);
+        queued = xRingbufferSend(uart_ring_buf_handle, data, len, 0);
+        if (ringbuf_size_before_push == 0) {
+            xTaskNotify(uart_task_handle, 0, eNoAction);
+        } 
+        else if (!queued) {
+            ESP_LOGW(BT_UART_TAG, "Unable to queue UART data into the circular buffer.");
+        }
     }
-    return len;
+    taskEXIT_CRITICAL(&myMutex);
+    return queued == pdTRUE ? len : 0;
 }
