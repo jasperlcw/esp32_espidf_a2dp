@@ -10,7 +10,9 @@ This is the example of API implementing Advanced Audio Distribution Profile to r
 
 This example involves the use of Bluetooth legacy profile A2DP for audio stream reception, AVRCP for media information notifications, and I2S for audio stream output interface.
 
-Applications such as bluetooth speakers can take advantage of this example as a reference of basic functionalities.
+Changes to the original provided example code are to the separation of Bluetooth stack code and I2S/internal DAC code to its own separate modules, as well as adding a separate thread of execution for sending AVRCP metadata over UART.
+
+Applications such as bluetooth speakers can take advantage of this example as a reference of basic functionalities. Note that adding functionalities/threads on top of the original A2DP sink code can cause audio overflows to occur due to lack of processing power, so make sure to add proper blocking calls to new threads of execution.
 
 ## How to use this example
 
